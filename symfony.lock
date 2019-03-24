@@ -119,6 +119,9 @@
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
+    "malukenho/mcbumpface": {
+        "version": "0.1.3"
+    },
     "messagebird/php-rest-api": {
         "version": "v1.9.4"
     },
