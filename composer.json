@@ -5,6 +5,7 @@
     "description": "Symfony Demo Application",
     "require": {
         "php": "^7.3",
+        "ext-json": "*",
         "ext-pdo_sqlite": "*",
         "doctrine/doctrine-bundle": "^1.10.2",
         "doctrine/doctrine-fixtures-bundle": "^3.1.0",
