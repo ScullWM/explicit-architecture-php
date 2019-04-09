@@ -16,6 +16,7 @@ namespace Acme\App\Core\Component\User\Application\Repository;
 
 use Acme\App\Core\Component\User\Domain\User\User;
 use Acme\App\Core\Port\Persistence\ResultCollectionInterface;
+use Acme\App\Core\SharedKernel\Component\Blog\Domain\Post\Comment\CommentId;
 use Acme\App\Core\SharedKernel\Component\User\Domain\User\UserId;
 
 interface UserRepositoryInterface
@@ -34,4 +35,9 @@ interface UserRepositoryInterface
     public function findOneByEmail(string $email): User;
 
     public function findOneById(UserId $id): User;
+
+    /**
+     * @return User[]
+     */
+    public function findAllByCommentId(CommentId $commentId): ResultCollectionInterface;
 }
