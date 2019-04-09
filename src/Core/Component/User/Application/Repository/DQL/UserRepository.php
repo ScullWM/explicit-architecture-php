@@ -15,6 +15,8 @@ declare(strict_types=1);
 namespace Acme\App\Core\Component\User\Application\Repository\DQL;
 
 use Acme\App\Core\Component\Blog\Domain\Post\Comment\Comment;
+use Acme\App\Core\Component\Blog\Domain\Post\Post;
+use Acme\App\Core\Component\Blog\Domain\Post\PostId;
 use Acme\App\Core\Component\User\Application\Repository\UserRepositoryInterface;
 use Acme\App\Core\Component\User\Domain\User\User;
 use Acme\App\Core\Port\Persistence\DQL\DqlQueryBuilderInterface;
@@ -135,6 +137,32 @@ class UserRepository implements UserRepositoryInterface
         $this->dqlQueryBuilder->innerJoin(Comment::class, 'Comment', Join::WITH, 'Comment.authorId = User.id')
             ->where('Comment.id = :comment')
             ->setParameter('comment', $commentId);
+
+        foreach ($orderByList as $property => $direction) {
+            $this->dqlQueryBuilder->orderBy('User.' . $property, $direction);
+        }
+
+        if ($maxResults) {
+            $this->dqlQueryBuilder->setMaxResults($maxResults);
+        }
+
+        return $this->queryService->query($this->dqlQueryBuilder->build());
+    }
+
+    /**
+     * @return User[]
+     */
+    public function findAllByPostId(
+        PostId $postId,
+        array $orderByList = ['id' => 'DESC'],
+        int $maxResults = null
+    ): ResultCollectionInterface {
+
+        $this->dqlQueryBuilder->create(User::class);
+
+        $this->dqlQueryBuilder->innerJoin(Post::class, 'Post', Join::WITH, 'Post.authorId = User.id')
+            ->where('Post.id = :post')
+            ->setParameter('post', $postId);
 
         foreach ($orderByList as $property => $direction) {
             $this->dqlQueryBuilder->orderBy('User.' . $property, $direction);

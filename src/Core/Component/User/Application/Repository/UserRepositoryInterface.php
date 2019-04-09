@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Acme\App\Core\Component\User\Application\Repository;
 
+use Acme\App\Core\Component\Blog\Domain\Post\PostId;
 use Acme\App\Core\Component\User\Domain\User\User;
 use Acme\App\Core\Port\Persistence\ResultCollectionInterface;
 use Acme\App\Core\SharedKernel\Component\Blog\Domain\Post\Comment\CommentId;
@@ -40,4 +41,9 @@ interface UserRepositoryInterface
      * @return User[]
      */
     public function findAllByCommentId(CommentId $commentId): ResultCollectionInterface;
+
+    /**
+     * @return User[]
+     */
+    public function findAllByPostId(PostId $postId): ResultCollectionInterface;
 }
