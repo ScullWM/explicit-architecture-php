@@ -25,6 +25,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException as SymfonyAuthenticationException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Csrf\CsrfToken;
@@ -57,18 +58,25 @@ final class AuthenticationService implements AuthenticationServiceInterface, Oau
      */
     private $userRepository;
 
+    /**
+     * @var UserPasswordEncoderInterface
+     */
+    private $userPasswordEncoder;
+
     public function __construct(
         CsrfTokenManagerInterface $csrfTokenManager,
         TokenStorageInterface $tokenStorage,
         HttpFoundationFactoryInterface $symfonyRequestFactory,
         SessionInterface $session,
-        UserRepositoryInterface $userRepository
+        UserRepositoryInterface $userRepository,
+        UserPasswordEncoderInterface $userPasswordEncoder
     ) {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->tokenStorage = $tokenStorage;
         $this->symfonyRequestFactory = $symfonyRequestFactory;
         $this->session = $session;
         $this->userRepository = $userRepository;
+        $this->userPasswordEncoder = $userPasswordEncoder;
     }
 
     public function isCsrfTokenValid(string $id, string $token): bool
@@ -124,6 +132,31 @@ final class AuthenticationService implements AuthenticationServiceInterface, Oau
         }
 
         return $this->session === null ? '' : $this->session->get(Security::LAST_USERNAME, '');
+    }
+
+    /**
+     * @param string $username
+     * @param string $password
+     * @param string $grantType
+     */
+    public function getUserEntityByUserCredentials(
+        $username,
+        $password,
+        $grantType,
+        ClientEntityInterface $clientEntity
+    ): ?UserEntityInterface {
+        $user = $this->userRepository->findOneByEmail($username);
+        if ($user === null) {
+            return null;
+        }
+
+        $securityUser = SecurityUser::fromUser($user);
+
+        if (!$this->userPasswordEncoder->isPasswordValid($securityUser, $password)) {
+            return null;
+        }
+
+        return $securityUser;
     }
 
     private function getSecurityUser(): SecurityUser
